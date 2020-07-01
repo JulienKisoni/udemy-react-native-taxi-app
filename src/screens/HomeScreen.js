@@ -1,21 +1,23 @@
 import React from "react";
-import { View, Text, StyleSheet, Dimensions } from "react-native";
+import { View, StyleSheet, Dimensions } from "react-native";
 import Constants from "expo-constants";
 import { Ionicons } from "@expo/vector-icons";
 
 import Block from "../components/Block";
 import Title from "../components/Title";
-import LoginBtn from "../components/LoginBtn";
-import { prefix, auth } from "../utils/helpers";
+import RoundBtn from "../components/RoundBtn";
+import { prefix } from "../utils/helpers";
 
 const { width } = Dimensions.get("window");
 
-const LoginScreen = props => {
-  const { container, icon, container_2, titleContainer } = styles;
-  const handleLogin = () => {
-    auth();
-    props.navigation.push("Home");
-  };
+const HomeScreen = props => {
+  const {
+    container,
+    icon,
+    container_2,
+    titleContainer,
+    roundBtnContainer
+  } = styles;
   return (
     <View style={container}>
       <Block>
@@ -24,10 +26,13 @@ const LoginScreen = props => {
       </Block>
       <View style={container_2}>
         <View style={titleContainer}>
-          <Title content="Authentification" size="small" />
-          <Title content="Google Connexion" size="medium" />
+          <Title content="Bienvenue" size="small" />
+          <Title content="Vous Recherchez Un" size="medium" />
         </View>
-        <LoginBtn onPress={handleLogin} />
+        <View style={roundBtnContainer}>
+          <RoundBtn iconName={`${prefix}-car`} />
+          <RoundBtn iconName={`${prefix}-person`} />
+        </View>
       </View>
     </View>
   );
@@ -56,7 +61,13 @@ const styles = StyleSheet.create({
     height: 50,
     justifyContent: "center",
     alignItems: "flex-start"
+  },
+  roundBtnContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: width - 80
   }
 });
 
-export default LoginScreen;
+export default HomeScreen;
