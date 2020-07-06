@@ -2,10 +2,10 @@ import React from "react";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-const RoundBtn = ({ iconName }) => {
+const RoundBtn = ({ iconName, onPress }) => {
   const { container, iconStyle } = styles;
   return (
-    <TouchableOpacity>
+    <TouchableOpacity onPress={onPress}>
       <View style={container}>
         <Ionicons style={iconStyle} name={iconName} />
       </View>

@@ -18,6 +18,8 @@ const HomeScreen = props => {
     titleContainer,
     roundBtnContainer
   } = styles;
+
+  const goTo = route => props.navigation.push(route);
   return (
     <View style={container}>
       <Block>
@@ -30,7 +32,10 @@ const HomeScreen = props => {
           <Title content="Vous Recherchez Un" size="medium" />
         </View>
         <View style={roundBtnContainer}>
-          <RoundBtn iconName={`${prefix}-car`} />
+          <RoundBtn
+            iconName={`${prefix}-car`}
+            onPress={() => goTo("Passenger")}
+          />
           <RoundBtn iconName={`${prefix}-person`} />
         </View>
       </View>
