@@ -55,7 +55,7 @@ export const getRoute = async url => {
     const {
       data: { routes }
     } = await axios.get(url);
-    const points = routes[0].overwiew_polyline.points;
+    const points = routes[0].overview_polyline.points;
     return points;
   } catch (e) {
     console.error("error route", e);
@@ -63,6 +63,13 @@ export const getRoute = async url => {
 };
 
 export const decodePoint = point => {
-  const fixPoint = PolyLine.decode(point);
-  console.log("fixPoint", fixPoint);
+  const fixPoints = PolyLine.decode(point);
+  const route = fixPoints.map(fixPoint => {
+    return {
+      latitude: fixPoint[0],
+      longitude: fixPoint[1]
+    };
+  });
+  console.log("route", route);
+  return route;
 };
