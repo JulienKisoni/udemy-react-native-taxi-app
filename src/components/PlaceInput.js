@@ -1,18 +1,80 @@
-import React from "react";
-import { View, TextInput, StyleSheet, Dimensions } from "react-native";
+import React, { useState } from "react";
+import {
+  View,
+  TextInput,
+  StyleSheet,
+  Dimensions,
+  ActivityIndicator
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import axios from "axios";
 
-import { prefix } from "../utils/helpers";
+import { prefix, BASE_URL, API_KEY } from "../utils/helpers";
+import Prediction from "./Prediction";
 const { width } = Dimensions.get("window");
 
-const PlaceInput = props => {
+const initialState = {
+  place: "",
+  predictions: [],
+  loading: false
+};
+
+const PlaceInput = ({ latitude, longitude, onPredictionPress }) => {
+  const [state, setState] = useState(initialState);
   const { container, icon, input, inputContainer } = styles;
+  const { place, loading, predictions } = state;
+
+  const renderPredictions = () => {
+    return predictions.map(prediction => {
+      const { structured_formatting, id, place_id } = prediction;
+      return (
+        <Prediction
+          main_text={structured_formatting.main_text}
+          secondary_text={structured_formatting.secondary_text}
+          key={id}
+          onPress={() => {
+            onPredictionPress(place_id);
+          }}
+        />
+      );
+    });
+  };
+  const search = async url => {
+    try {
+      const {
+        data: { predictions }
+      } = await axios.get(url);
+      setState(prevState => ({
+        ...prevState,
+        predictions,
+        loading: false
+      }));
+    } catch (e) {
+      console.error("error search", e);
+    }
+  };
+  const handleChangeText = value => {
+    setState(prevState => ({
+      ...prevState,
+      place: value,
+      loading: true
+    }));
+    const url = `${BASE_URL}/place/autocomplete/json?key=${API_KEY}&input=${value}&location=${latitude},${longitude}&radius=2000&language=fr`;
+    // console.log("url", url);
+    search(url);
+  };
   return (
     <View style={container}>
       <View style={inputContainer}>
-        <TextInput style={input} />
-        <Ionicons style={icon} name={`${prefix}-search`} />
+        <TextInput
+          style={input}
+          value={place}
+          onChangeText={handleChangeText}
+        />
+        {!loading && <Ionicons style={icon} name={`${prefix}-search`} />}
+        {loading && <ActivityIndicator />}
       </View>
+      {!loading && predictions.length > 0 ? renderPredictions() : null}
     </View>
   );
 };

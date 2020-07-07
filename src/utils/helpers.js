@@ -1,5 +1,7 @@
 import { Platform, AsyncStorage } from "react-native";
 import * as Google from "expo-google-app-auth";
+import axios from "axios";
+import PolyLine from "@mapbox/polyline";
 
 export const prefix = Platform.OS === "ios" ? "ios" : "md";
 
@@ -11,6 +13,8 @@ const config = {
 };
 
 export const API_KEY = "AIzaSyDBHoVbqCTbIQ-YPj4fPxes2f-HhD9SRS4";
+
+export const BASE_URL = "https://maps.googleapis.com/maps/api";
 
 export const auth = async () => {
   try {
@@ -44,4 +48,21 @@ export const renderInitialScreen = async () => {
   } catch (e) {
     console.error("error render initial screen", e);
   }
+};
+
+export const getRoute = async url => {
+  try {
+    const {
+      data: { routes }
+    } = await axios.get(url);
+    const points = routes[0].overwiew_polyline.points;
+    return points;
+  } catch (e) {
+    console.error("error route", e);
+  }
+};
+
+export const decodePoint = point => {
+  const fixPoint = PolyLine.decode(point);
+  console.log("fixPoint", fixPoint);
 };
