@@ -36,7 +36,10 @@ const HomeScreen = props => {
             iconName={`${prefix}-car`}
             onPress={() => goTo("Passenger")}
           />
-          <RoundBtn iconName={`${prefix}-person`} />
+          <RoundBtn
+            iconName={`${prefix}-person`}
+            onPress={() => goTo("Driver")}
+          />
         </View>
       </View>
     </View>

@@ -50,6 +50,8 @@ export const renderInitialScreen = async () => {
   }
 };
 
+export const SERVER_URL = "http://192.168.43.108:4000";
+
 export const getRoute = async url => {
   try {
     const {

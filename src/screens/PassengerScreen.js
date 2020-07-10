@@ -5,20 +5,30 @@ import {
   StyleSheet,
   ActivityIndicator,
   TouchableWithoutFeedback,
-  Keyboard
+  Keyboard,
+  Alert
 } from "react-native";
 import Constants from "expo-constants";
 import MapView, { Polyline, Marker } from "react-native-maps";
 import * as Location from "expo-location";
+import SocketIO from "socket.io-client";
 
 import PlaceInput from "../components/PlaceInput";
-import { BASE_URL, API_KEY, getRoute, decodePoint } from "../utils/helpers";
+import {
+  BASE_URL,
+  API_KEY,
+  getRoute,
+  decodePoint,
+  SERVER_URL
+} from "../utils/helpers";
 
+let io;
 const initialState = {
   latitude: null,
   longitude: null,
   coordinates: [],
-  destinationCoords: null
+  destinationCoords: null,
+  taxiCorrds: null
 };
 const { width, height } = Dimensions.get("window");
 const PassengerScreen = props => {
@@ -26,7 +36,23 @@ const PassengerScreen = props => {
   const [state, setState] = useState(initialState);
   const { latitude, longitude, coordinates, destinationCoords } = state;
   const { container, mapStyle } = styles;
-
+  const connectSocket = () => {
+    io = SocketIO.connect(SERVER_URL);
+    io.on("connect", () => {
+      console.log("connexion passager réussie");
+    });
+    io.on("requestPassenger", taxiInfo => {
+      // alerte pour dire qu'un taxi est en route
+      Alert.alert("Taxi En Route");
+      setState(prevState => ({
+        ...prevState,
+        taxiCoords: {
+          latitude: taxiInfo.lat,
+          longitude: taxiInfo.long
+        }
+      }));
+    });
+  };
   const handlePredictionPress = async place_id => {
     try {
       const url = `${BASE_URL}/directions/json?key=${API_KEY}&destination=place_id:${place_id}&origin=${latitude},${longitude}`;
@@ -47,6 +73,7 @@ const PassengerScreen = props => {
           right: 40
         }
       });
+      io.emit("requestTaxi", { latitude, longitude });
     } catch (e) {
       console.error("error prediction press", e);
     }
@@ -62,6 +89,7 @@ const PassengerScreen = props => {
         latitude,
         longitude
       }));
+      connectSocket();
     } catch (e) {
       console.error("error getUserLocation", e);
     }
