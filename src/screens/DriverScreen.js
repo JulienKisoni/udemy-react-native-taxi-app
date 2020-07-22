@@ -32,6 +32,9 @@ const DriverScreen = props => {
     const url = Platform.OS === "ios" ? iosUrl : androidUrl;
     Linking.openURL(url);
   };
+  useEffect(() => {
+    return () => io.emit("quit", "taxi");
+  }, []);
   const searchPassenger = ({ lat, long }) => {
     io = SocketIO.connect(SERVER_URL);
     io.on("connect", () => {

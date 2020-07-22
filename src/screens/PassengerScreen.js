@@ -6,7 +6,8 @@ import {
   ActivityIndicator,
   TouchableWithoutFeedback,
   Keyboard,
-  Alert
+  Alert,
+  Image
 } from "react-native";
 import Constants from "expo-constants";
 import MapView, { Polyline, Marker } from "react-native-maps";
@@ -21,6 +22,7 @@ import {
   decodePoint,
   SERVER_URL
 } from "../utils/helpers";
+import TAXI_LOGO from "../../assets/images/taxi.png";
 
 let io;
 const initialState = {
@@ -34,8 +36,30 @@ const { width, height } = Dimensions.get("window");
 const PassengerScreen = props => {
   const mapView = useRef();
   const [state, setState] = useState(initialState);
-  const { latitude, longitude, coordinates, destinationCoords } = state;
-  const { container, mapStyle } = styles;
+  const {
+    latitude,
+    longitude,
+    coordinates,
+    destinationCoords,
+    taxiCorrds
+  } = state;
+  const { container, mapStyle, taxiStyle } = styles;
+  useEffect(() => {
+    if (taxiCorrds) {
+      mapView.current.fitToCoordinates([...coordinates, taxiCorrds], {
+        animated: true,
+        edgePadding: {
+          top: 100,
+          bottom: 40,
+          left: 40,
+          right: 40
+        }
+      });
+    }
+  }, [taxiCorrds]);
+  useEffect(() => {
+    return () => io.emit("quit", "pass");
+  }, []);
   const connectSocket = () => {
     io = SocketIO.connect(SERVER_URL);
     io.on("connect", () => {
@@ -128,6 +152,11 @@ const PassengerScreen = props => {
             />
           )}
           {destinationCoords && <Marker coordinate={destinationCoords} />}
+          {taxiCorrds && (
+            <Marker coordinate={taxiCorrds}>
+              <Image source={TAXI_LOGO} style={taxiStyle} />
+            </Marker>
+          )}
         </MapView>
         <PlaceInput
           latitude={latitude}
@@ -151,6 +180,10 @@ const styles = StyleSheet.create({
   mapStyle: {
     width,
     height
+  },
+  taxiStyle: {
+    width: 30,
+    height: 30
   }
 });
 
