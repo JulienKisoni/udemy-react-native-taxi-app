@@ -6,8 +6,8 @@ import PolyLine from "@mapbox/polyline";
 export const prefix = Platform.OS === "ios" ? "ios" : "md";
 
 const config = {
-  iosClientId: `338731194861-e7hl0ccu1rtmi28ua3met4ev842pu415.apps.googleusercontent.com`,
-  androidClientId: `338731194861-1qf86jgd4jcfnim9e0qbhv51408vpk6b.apps.googleusercontent.com`,
+  iosClientId: `*****************************`,
+  androidClientId: `***************************`,
   iosStandaloneAppClientId: `<YOUR_IOS_CLIENT_ID>`,
   androidStandaloneAppClientId: `<YOUR_ANDROID_CLIENT_ID>`
 };
@@ -444,7 +444,7 @@ export const whiteMapStyle = [
   }
 ];
 
-export const API_KEY = "AIzaSyDBHoVbqCTbIQ-YPj4fPxes2f-HhD9SRS4";
+export const API_KEY = "*******************";
 
 export const BASE_URL = "https://maps.googleapis.com/maps/api";
 
