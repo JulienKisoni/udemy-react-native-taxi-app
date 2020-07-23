@@ -9,24 +9,29 @@ import {
   Linking
 } from "react-native";
 import Constants from "expo-constants";
-import MapView from "react-native-maps";
+import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 import * as Location from "expo-location";
 import SocketIO from "socket.io-client";
-import { SERVER_URL } from "../utils/helpers";
+import { SERVER_URL, whiteMapStyle } from "../utils/helpers";
 
 let io;
 const initialState = {
   latitude: null,
   longitude: null,
   coordinates: [],
-  destinationCoords: null
+  destinationCoords: null,
+  taxiOk: false
 };
 const { width, height } = Dimensions.get("window");
 const DriverScreen = props => {
   const [state, setState] = useState(initialState);
-  const { latitude, longitude, coordinates, destinationCoords } = state;
-  const { container, mapStyle } = styles;
+  const { latitude, longitude, taxiOk, destinationCoords } = state;
+  const { container, mapStyle, mySpinner } = styles;
   const openMaps = (latitude, longitude) => {
+    setState(prevState => ({
+      ...prevState,
+      taxiOk: true
+    }));
     const androidUrl = `geo:0,0?q=${latitude},${longitude}(destination)`;
     const iosUrl = `http://maps.apple.com?addr=${latitude},${longitude}`;
     const url = Platform.OS === "ios" ? iosUrl : androidUrl;
@@ -35,6 +40,11 @@ const DriverScreen = props => {
   useEffect(() => {
     return () => io.emit("quit", "taxi");
   }, []);
+  useEffect(() => {
+    if (taxiOk) {
+      io.emit("requestPassenger", { lat: latitude, long: longitude });
+    }
+  }, [taxiOk]);
   const searchPassenger = ({ lat, long }) => {
     io = SocketIO.connect(SERVER_URL);
     io.on("connect", () => {
@@ -60,9 +70,8 @@ const DriverScreen = props => {
             {
               text: "Accepter",
               onPress: () => {
-                io.emit("requestPassenger", { lat, long });
                 //    ouvrir google map
-                openMaps(passInfo.lat, passInfo.long);
+                openMaps(passInfo.latitude, passInfo.longitude);
               }
             }
           ],
@@ -104,6 +113,8 @@ const DriverScreen = props => {
   return (
     <View style={container}>
       <MapView
+        provider={PROVIDER_GOOGLE}
+        customMapStyle={whiteMapStyle}
         style={mapStyle}
         showsUserLocation
         followsUserLocation
@@ -114,6 +125,11 @@ const DriverScreen = props => {
           longitudeDelta: 0.121
         }}
       />
+      {!destinationCoords && (
+        <View style={mySpinner}>
+          <ActivityIndicator size="large" color="#fff" />
+        </View>
+      )}
     </View>
   );
 };
@@ -130,6 +146,16 @@ const styles = StyleSheet.create({
   mapStyle: {
     width,
     height
+  },
+  mySpinner: {
+    position: "absolute",
+    bottom: 10,
+    backgroundColor: "#2dbb54",
+    justifyContent: "center",
+    alignItems: "center",
+    width: 60,
+    height: 60,
+    borderRadius: 30
   }
 });
 

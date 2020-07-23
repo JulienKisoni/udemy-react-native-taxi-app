@@ -10,7 +10,7 @@ import {
   Image
 } from "react-native";
 import Constants from "expo-constants";
-import MapView, { Polyline, Marker } from "react-native-maps";
+import MapView, { Polyline, Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import * as Location from "expo-location";
 import SocketIO from "socket.io-client";
 
@@ -20,7 +20,8 @@ import {
   API_KEY,
   getRoute,
   decodePoint,
-  SERVER_URL
+  SERVER_URL,
+  whiteMapStyle
 } from "../utils/helpers";
 import TAXI_LOGO from "../../assets/images/taxi.png";
 
@@ -30,7 +31,7 @@ const initialState = {
   longitude: null,
   coordinates: [],
   destinationCoords: null,
-  taxiCorrds: null
+  taxiCoords: null
 };
 const { width, height } = Dimensions.get("window");
 const PassengerScreen = props => {
@@ -41,12 +42,12 @@ const PassengerScreen = props => {
     longitude,
     coordinates,
     destinationCoords,
-    taxiCorrds
+    taxiCoords
   } = state;
   const { container, mapStyle, taxiStyle } = styles;
   useEffect(() => {
-    if (taxiCorrds) {
-      mapView.current.fitToCoordinates([...coordinates, taxiCorrds], {
+    if (taxiCoords) {
+      mapView.current.fitToCoordinates([...coordinates, taxiCoords], {
         animated: true,
         edgePadding: {
           top: 100,
@@ -56,7 +57,7 @@ const PassengerScreen = props => {
         }
       });
     }
-  }, [taxiCorrds]);
+  }, [taxiCoords]);
   useEffect(() => {
     return () => io.emit("quit", "pass");
   }, []);
@@ -133,6 +134,8 @@ const PassengerScreen = props => {
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <View style={container}>
         <MapView
+          provider={PROVIDER_GOOGLE}
+          customMapStyle={whiteMapStyle}
           ref={mapView}
           style={mapStyle}
           showsUserLocation
@@ -152,8 +155,8 @@ const PassengerScreen = props => {
             />
           )}
           {destinationCoords && <Marker coordinate={destinationCoords} />}
-          {taxiCorrds && (
-            <Marker coordinate={taxiCorrds}>
+          {taxiCoords && (
+            <Marker coordinate={taxiCoords}>
               <Image source={TAXI_LOGO} style={taxiStyle} />
             </Marker>
           )}
